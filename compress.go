@@ -11,7 +11,7 @@ import (
 	"sync"
 
 	"github.com/gin-gonic/gin"
-	brEncode "github.com/itchio/go-brotli/enc"
+	"github.com/google/brotli/go/cbrotli"
 )
 
 type (
@@ -155,7 +155,7 @@ func (w *compressWriter) open(contentLength int64) {
 
 	switch w.encoding {
 	case "br":
-		writer := brEncode.NewBrotliWriter(w.ResponseWriter, &brEncode.BrotliWriterOptions{
+		writer := cbrotli.NewWriter(w.ResponseWriter, cbrotli.WriterOptions{
 			Quality: w.config.BrQuality,
 			LGWin:   w.config.BrLGWin,
 		})
@@ -173,8 +173,8 @@ func (w *compressWriter) close() {
 		writer := w.writer.(*gzip.Writer)
 		writer.Close()
 		w.gzipPool.Put(writer)
-	case *brEncode.BrotliWriter:
-		writer := w.writer.(*brEncode.BrotliWriter)
+	case *cbrotli.Writer:
+		writer := w.writer.(*cbrotli.Writer)
 		writer.Close()
 	}
 }
